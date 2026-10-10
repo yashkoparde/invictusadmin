@@ -75,3 +75,9 @@
   .tab-btn { background:none; border:none; color:#94A3B8; font-weight:600; cursor:pointer; padding:8px 0; border-bottom:2px solid transparent; }
   .tab-btn.active { color:#FFD60A; border-bottom-color:#FFD60A; }
 </style>
+<script>
+  function switchTab(tab) {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    event.target.classList.add("active");
+  }
+</script>
