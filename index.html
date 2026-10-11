@@ -147,3 +147,9 @@
     tbody.innerHTML = items.map(w => `<tr><td>#${w.id}</td><td><b>${w.name}</b></td><td><span class="badge">${w.position}</span></td><td>${w.display_date}</td><td>${w.location}</td><td><button onclick="deleteWin(${w.id})">Delete</button></td></tr>`).join("");
   }
 </script>
+<div class="modal-overlay" id="winModal" style="display:none;">
+  <div class="modal-dialog">
+    <h3>ADD NEW HALL OF FAME CARD</h3>
+    <form id="newWinForm"></form>
+  </div>
+</div>
