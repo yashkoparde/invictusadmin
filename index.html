@@ -115,3 +115,35 @@
 </script>
 <!-- Supabase Connection Retry Logic -->
 <!-- Header Live Badge Sync -->
+<div class="table-container" id="winsView">
+  <div class="table-header">
+    <h2>HALL OF FAME FIXTURES</h2>
+    <button class="btn-gold" onclick="openNewWinModal()">+ ADD VICTORY</button>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>ID</th><th>HACKATHON / EVENT</th><th>AWARD</th><th>DATE</th><th>LOCATION</th><th>ACTIONS</th></tr>
+    </thead>
+    <tbody id="winsTbody"></tbody>
+  </table>
+</div>
+<style>
+  .admin-table { width:100%; border-collapse:collapse; text-align:left; }
+  .admin-table th { padding:12px; background:#0B0E14; border-bottom:1px solid #1E2638; color:#64748B; font-size:11px; text-transform:uppercase; }
+  .admin-table td { padding:14px 12px; border-bottom:1px solid #161B26; font-size:13px; }
+  .admin-table tr:hover { background:rgba(255,214,10,0.03); }
+</style>
+<script>
+  async function loadWins() {
+    if (!supabase) return;
+    const { data, error } = await supabase.from("wins").select("*").order("sort_date", { ascending: false });
+    if (data) renderWinsTable(data);
+  }
+</script>
+<script>
+  function renderWinsTable(items) {
+    const tbody = document.getElementById("winsTbody");
+    if (!tbody) return;
+    tbody.innerHTML = items.map(w => `<tr><td>#${w.id}</td><td><b>${w.name}</b></td><td><span class="badge">${w.position}</span></td><td>${w.display_date}</td><td>${w.location}</td><td><button onclick="deleteWin(${w.id})">Delete</button></td></tr>`).join("");
+  }
+</script>
