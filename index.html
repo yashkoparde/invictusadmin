@@ -133,3 +133,10 @@
   .admin-table td { padding:14px 12px; border-bottom:1px solid #161B26; font-size:13px; }
   .admin-table tr:hover { background:rgba(255,214,10,0.03); }
 </style>
+<script>
+  async function loadWins() {
+    if (!supabase) return;
+    const { data, error } = await supabase.from("wins").select("*").order("sort_date", { ascending: false });
+    if (data) renderWinsTable(data);
+  }
+</script>
