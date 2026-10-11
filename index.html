@@ -140,3 +140,10 @@
     if (data) renderWinsTable(data);
   }
 </script>
+<script>
+  function renderWinsTable(items) {
+    const tbody = document.getElementById("winsTbody");
+    if (!tbody) return;
+    tbody.innerHTML = items.map(w => `<tr><td>#${w.id}</td><td><b>${w.name}</b></td><td><span class="badge">${w.position}</span></td><td>${w.display_date}</td><td>${w.location}</td><td><button onclick="deleteWin(${w.id})">Delete</button></td></tr>`).join("");
+  }
+</script>
