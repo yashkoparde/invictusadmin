@@ -101,3 +101,17 @@
   }
 </script>
 <!-- Stats Tooltip helper notes -->
+<script>
+  const SUPABASE_URL = "https://dzgzezbmntssdcgsndwx.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_6CDdeGs_0f_HjR0RbAv1lw_gi_qMWLW";
+  const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+</script>
+<script>
+  async function checkSupabaseConnection() {
+    if (!supabase) return false;
+    const { count, error } = await supabase.from("wins").select("*", { count: "exact", head: true });
+    return !error;
+  }
+</script>
+<!-- Supabase Connection Retry Logic -->
+<!-- Header Live Badge Sync -->
