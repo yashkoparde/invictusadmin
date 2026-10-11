@@ -81,3 +81,23 @@
     event.target.classList.add("active");
   }
 </script>
+<div class="stats-grid">
+  <div class="stat-card" id="cardWins"><h3>Total Victories</h3><span class="num" id="statWins">--</span></div>
+  <div class="stat-card" id="cardRank1"><h3>National Rank 1s</h3><span class="num" id="statRank1">--</span></div>
+  <div class="stat-card" id="cardEvents"><h3>Timeline Fixtures</h3><span class="num" id="statEvents">--</span></div>
+  <div class="stat-card" id="cardPhotos"><h3>Bucket Photos</h3><span class="num" id="statPhotos">--</span></div>
+</div>
+<style>
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:20px 24px; }
+  .stat-card { background:#0D1117; border:1px solid #1E2638; border-radius:8px; padding:16px; }
+  .stat-card h3 { font-size:12px; color:#64748B; text-transform:uppercase; }
+  .stat-card .num { font-size:28px; font-weight:800; color:#FFD60A; display:block; margin-top:8px; }
+</style>
+<script>
+  function updateCounters(wins, events) {
+    document.getElementById("statWins").innerText = wins.length;
+    document.getElementById("statRank1").innerText = wins.filter(w => w.position.includes("1st") || w.position.includes("Winner")).length;
+    document.getElementById("statEvents").innerText = events.length;
+  }
+</script>
+<!-- Stats Tooltip helper notes -->
