@@ -206,3 +206,17 @@
     return `wins/${winId}/photo_${Date.now()}_${Math.random().toString(36).substring(2,7)}.${ext}`;
   }
 </script>
+<script>
+  async function uploadPhotosToStorage(files, winId) {
+    const urls = [];
+    for (const f of files) {
+      const key = sanitizeStorageKey(f, winId);
+      const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(key, f);
+      if (!error) {
+        const { data: p } = supabase.storage.from(BUCKET_NAME).getPublicUrl(key);
+        urls.push(p.publicUrl);
+      }
+    }
+    return urls;
+  }
+</script>
