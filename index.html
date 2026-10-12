@@ -176,3 +176,6 @@
     dropBox.addEventListener("dragleave", () => dropBox.classList.remove("dragover"));
   }
 </script>
+<script>
+  if (dropBox) dropBox.addEventListener("click", () => document.getElementById("winFileInput").click());
+</script>
