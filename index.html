@@ -232,3 +232,6 @@
     return await supabase.from("wins").insert([winData]);
   }
 </script>
+<script>
+  async function onWinCreated() { closeWinModal(); await loadWins(); }
+</script>
