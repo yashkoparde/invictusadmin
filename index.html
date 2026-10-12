@@ -200,3 +200,9 @@
 <script>
   const BUCKET_NAME = "hall-of-fame-photos";
 </script>
+<script>
+  function sanitizeStorageKey(file, winId) {
+    const ext = file.name.split(".").pop();
+    return `wins/${winId}/photo_${Date.now()}_${Math.random().toString(36).substring(2,7)}.${ext}`;
+  }
+</script>
