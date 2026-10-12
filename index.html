@@ -169,3 +169,10 @@
   .dropbox { border:2px dashed #1E2638; border-radius:8px; padding:24px; text-align:center; cursor:pointer; color:#64748B; transition:all 0.2s; }
   .dropbox.dragover { border-color:#FFD60A; background:rgba(255,214,10,0.05); color:#FFD60A; }
 </style>
+<script>
+  const dropBox = document.getElementById("winDropBox");
+  if (dropBox) {
+    dropBox.addEventListener("dragover", e => { e.preventDefault(); dropBox.classList.add("dragover"); });
+    dropBox.addEventListener("dragleave", () => dropBox.classList.remove("dragover"));
+  }
+</script>
