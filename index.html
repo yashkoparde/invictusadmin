@@ -197,3 +197,27 @@
   .preview-strip { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
   .preview-thumb { width:64px; height:64px; border-radius:4px; object-fit:cover; border:1px solid #1E2638; }
 </style>
+<script>
+  const BUCKET_NAME = "hall-of-fame-photos";
+</script>
+<script>
+  function sanitizeStorageKey(file, winId) {
+    const ext = file.name.split(".").pop();
+    return `wins/${winId}/photo_${Date.now()}_${Math.random().toString(36).substring(2,7)}.${ext}`;
+  }
+</script>
+<script>
+  async function uploadPhotosToStorage(files, winId) {
+    const urls = [];
+    for (const f of files) {
+      const key = sanitizeStorageKey(f, winId);
+      const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(key, f);
+      if (!error) {
+        const { data: p } = supabase.storage.from(BUCKET_NAME).getPublicUrl(key);
+        urls.push(p.publicUrl);
+      }
+    }
+    return urls;
+  }
+</script>
+<!-- Storage Upload Progress State Feedback -->
