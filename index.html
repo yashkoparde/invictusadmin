@@ -161,3 +161,21 @@
   function openNewWinModal() { document.getElementById("winModal").style.display = "flex"; }
   function closeWinModal() { document.getElementById("winModal").style.display = "none"; }
 </script>
+<div class="dropbox" id="winDropBox">
+  <p>DRAG & DROP PHOTO FILES HERE<br>- or click to browse -</p>
+  <input type="file" id="winFileInput" multiple accept="image/*" style="display:none;" />
+</div>
+<style>
+  .dropbox { border:2px dashed #1E2638; border-radius:8px; padding:24px; text-align:center; cursor:pointer; color:#64748B; transition:all 0.2s; }
+  .dropbox.dragover { border-color:#FFD60A; background:rgba(255,214,10,0.05); color:#FFD60A; }
+</style>
+<script>
+  const dropBox = document.getElementById("winDropBox");
+  if (dropBox) {
+    dropBox.addEventListener("dragover", e => { e.preventDefault(); dropBox.classList.add("dragover"); });
+    dropBox.addEventListener("dragleave", () => dropBox.classList.remove("dragover"));
+  }
+</script>
+<script>
+  if (dropBox) dropBox.addEventListener("click", () => document.getElementById("winFileInput").click());
+</script>
