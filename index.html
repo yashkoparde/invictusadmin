@@ -287,3 +287,13 @@
 <style>
   .status-pill { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; background:#1E2638; color:#94A3B8; }
 </style>
+<input type="text" id="eventSearchInput" placeholder="Filter events..." class="search-box" />
+<script>
+  document.getElementById("eventSearchInput")?.addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+  });
+</script>
+<!-- Category Dropdown Filter Selector -->
+<style>
+  .search-box { background:#0D1117; border:1px solid #1E2638; color:#ECEFF4; padding:8px 12px; border-radius:6px; }
+</style>
