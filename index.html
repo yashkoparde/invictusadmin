@@ -302,3 +302,11 @@
   <div id="agendaRows"></div>
   <button type="button" onclick="addAgendaRow()">+ Add Activity</button>
 </div>
+<script>
+  function addAgendaRow() {
+    const r = document.createElement("div");
+    r.className = "agenda-row";
+    r.innerHTML = `<input placeholder="Time (e.g. 10:00 AM)" /><input placeholder="Activity description" /><button onclick="this.parentElement.remove()">X</button>`;
+    document.getElementById("agendaRows")?.appendChild(r);
+  }
+</script>
