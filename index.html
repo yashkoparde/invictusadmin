@@ -270,3 +270,10 @@
     <tbody id="eventsTbody"></tbody>
   </table>
 </div>
+<script>
+  async function loadEvents() {
+    if (!supabase) return;
+    const { data } = await supabase.from("events").select("*").order("date", { ascending: false });
+    if (data) renderEventsTable(data);
+  }
+</script>
