@@ -258,3 +258,15 @@
   }
 </script>
 <!-- Storage Folder Cleanup on Delete -->
+<div class="table-container" id="eventsView" style="display:none;">
+  <div class="table-header">
+    <h2>TIMELINE EVENTS</h2>
+    <button class="btn-gold" onclick="openNewEventModal()">+ ADD EVENT</button>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>ID</th><th>EVENT TITLE</th><th>CATEGORY</th><th>STATUS</th><th>DATE</th><th>ACTIONS</th></tr>
+    </thead>
+    <tbody id="eventsTbody"></tbody>
+  </table>
+</div>
