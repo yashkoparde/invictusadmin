@@ -297,3 +297,24 @@
 <style>
   .search-box { background:#0D1117; border:1px solid #1E2638; color:#ECEFF4; padding:8px 12px; border-radius:6px; }
 </style>
+<div id="agendaBuilder" class="agenda-container">
+  <h4>SCHEDULE AGENDA</h4>
+  <div id="agendaRows"></div>
+  <button type="button" onclick="addAgendaRow()">+ Add Activity</button>
+</div>
+<script>
+  function addAgendaRow() {
+    const r = document.createElement("div");
+    r.className = "agenda-row";
+    r.innerHTML = `<input placeholder="Time (e.g. 10:00 AM)" /><input placeholder="Activity description" /><button onclick="this.parentElement.remove()">X</button>`;
+    document.getElementById("agendaRows")?.appendChild(r);
+  }
+</script>
+<script>
+  function serializeAgenda() {
+    return Array.from(document.querySelectorAll(".agenda-row")).map(r => ({
+      time: r.children[0].value,
+      activity: r.children[1].value
+    }));
+  }
+</script>
