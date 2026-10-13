@@ -242,3 +242,10 @@
     <button id="confirmDeleteBtn" class="btn-gold">DELETE</button>
   </div>
 </div>
+<script>
+  let pendingDeleteId = null;
+  function promptDeleteWin(id) {
+    pendingDeleteId = id;
+    document.getElementById("deleteModal").style.display = "flex";
+  }
+</script>
