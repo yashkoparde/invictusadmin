@@ -258,3 +258,32 @@
   }
 </script>
 <!-- Storage Folder Cleanup on Delete -->
+<div class="table-container" id="eventsView" style="display:none;">
+  <div class="table-header">
+    <h2>TIMELINE EVENTS</h2>
+    <button class="btn-gold" onclick="openNewEventModal()">+ ADD EVENT</button>
+  </div>
+  <table class="admin-table">
+    <thead>
+      <tr><th>ID</th><th>EVENT TITLE</th><th>CATEGORY</th><th>STATUS</th><th>DATE</th><th>ACTIONS</th></tr>
+    </thead>
+    <tbody id="eventsTbody"></tbody>
+  </table>
+</div>
+<script>
+  async function loadEvents() {
+    if (!supabase) return;
+    const { data } = await supabase.from("events").select("*").order("date", { ascending: false });
+    if (data) renderEventsTable(data);
+  }
+</script>
+<script>
+  function renderEventsTable(events) {
+    const tbody = document.getElementById("eventsTbody");
+    if (!tbody) return;
+    tbody.innerHTML = events.map(e => `<tr><td>#${e.id}</td><td><b>${e.name}</b></td><td>${e.category}</td><td><span class="status-pill">${e.status}</span></td><td>${e.date}</td><td><button onclick="deleteEvent(${e.id})">Delete</button></td></tr>`).join("");
+  }
+</script>
+<style>
+  .status-pill { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; background:#1E2638; color:#94A3B8; }
+</style>
