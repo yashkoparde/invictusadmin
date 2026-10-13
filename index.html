@@ -249,3 +249,11 @@
     document.getElementById("deleteModal").style.display = "flex";
   }
 </script>
+<script>
+  async function executeDelete() {
+    if (!pendingDeleteId) return;
+    await supabase.from("wins").delete().eq("id", pendingDeleteId);
+    document.getElementById("deleteModal").style.display = "none";
+    await loadWins();
+  }
+</script>
