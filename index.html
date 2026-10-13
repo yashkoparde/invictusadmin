@@ -310,3 +310,11 @@
     document.getElementById("agendaRows")?.appendChild(r);
   }
 </script>
+<script>
+  function serializeAgenda() {
+    return Array.from(document.querySelectorAll(".agenda-row")).map(r => ({
+      time: r.children[0].value,
+      activity: r.children[1].value
+    }));
+  }
+</script>
