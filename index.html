@@ -277,3 +277,10 @@
     if (data) renderEventsTable(data);
   }
 </script>
+<script>
+  function renderEventsTable(events) {
+    const tbody = document.getElementById("eventsTbody");
+    if (!tbody) return;
+    tbody.innerHTML = events.map(e => `<tr><td>#${e.id}</td><td><b>${e.name}</b></td><td>${e.category}</td><td><span class="status-pill">${e.status}</span></td><td>${e.date}</td><td><button onclick="deleteEvent(${e.id})">Delete</button></td></tr>`).join("");
+  }
+</script>
