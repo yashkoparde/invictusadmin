@@ -235,3 +235,10 @@
 <script>
   async function onWinCreated() { closeWinModal(); await loadWins(); }
 </script>
+<div class="modal-overlay" id="deleteModal" style="display:none;">
+  <div class="modal-dialog">
+    <h3>CONFIRM DELETION</h3>
+    <p>Are you sure you want to permanently delete this fixture card?</p>
+    <button id="confirmDeleteBtn" class="btn-gold">DELETE</button>
+  </div>
+</div>
