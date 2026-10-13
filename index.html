@@ -284,3 +284,6 @@
     tbody.innerHTML = events.map(e => `<tr><td>#${e.id}</td><td><b>${e.name}</b></td><td>${e.category}</td><td><span class="status-pill">${e.status}</span></td><td>${e.date}</td><td><button onclick="deleteEvent(${e.id})">Delete</button></td></tr>`).join("");
   }
 </script>
+<style>
+  .status-pill { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; background:#1E2638; color:#94A3B8; }
+</style>
