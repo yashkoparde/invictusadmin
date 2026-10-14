@@ -318,3 +318,14 @@
     }));
   }
 </script>
+<div class="tag-input-group">
+  <label>Mentors & Judges (comma separated):</label>
+  <input id="mentorsInput" placeholder="Dr. Sharma, Jane Doe" />
+</div>
+<script>
+  function parseMentors() {
+    const val = document.getElementById("mentorsInput")?.value || "";
+    return val.split(",").map(s => s.trim()).filter(Boolean);
+  }
+</script>
+<!-- Tag Preview Chip Styles -->
