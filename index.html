@@ -3,342 +3,924 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INVICTUS - Admin Portal</title>
+  <title>INVICTUS - Event and HOF Manager</title>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #080A0F;
+      color: #ECEFF4;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      user-select: none;
+    }
+
+    /* Top Banner */
+    .header-bar {
+      background-color: #000000;
+      height: 64px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #1E2638;
+    }
+    .diamond-logo {
+      width: 28px;
+      height: 28px;
+      background: #FFD60A;
+      transform: rotate(45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      border: 1px solid #FFFFFF;
+      box-shadow: 0 0 10px rgba(255, 214, 10, 0.4);
+    }
+    .diamond-logo span {
+      transform: rotate(-45deg);
+      color: #000000;
+      font-weight: 900;
+      font-size: 13px;
+    }
+    .header-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tabs (Exact TKinter clam Notebook replica) */
+    .notebook-tabs {
+      background-color: #080A0F;
+      padding: 12px 16px 0 16px;
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      background-color: #121622;
+      color: #94A3B8;
+      border: none;
+      padding: 10px 24px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .tab-btn.active {
+      background-color: #FFD60A;
+      color: #000000;
+    }
+
+    /* Container */
+    .tab-body {
+      padding: 12px 16px 16px 16px;
+      flex: 1;
+      display: flex;
+      gap: 14px;
+    }
+    .left-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-width: 0;
+    }
+    .right-col {
+      width: 420px;
+      background-color: #0F131D;
+      border: 1px solid #1E2638;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Top bar above tables */
+    .tbl-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .tbl-heading {
+      font-size: 11px;
+      font-weight: 700;
+      color: #E2E8F0;
+      letter-spacing: 0.5px;
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+    }
+    .gui-btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 2px;
+      transition: filter 0.15s;
+    }
+    .gui-btn:hover {
+      filter: brightness(1.2);
+    }
+    .gui-btn-reload {
+      background-color: #1A2234;
+      color: #94A3B8;
+    }
+    .gui-btn-delete {
+      background-color: #7F1D1D;
+      color: #FECACA;
+    }
+
+    /* Treeview Table Exact Styling */
+    .treeview-wrap {
+      flex: 1;
+      background-color: #0F131D;
+      border: 1px solid #1E2638;
+      overflow-y: auto;
+      max-height: 380px;
+    }
+    table.treeview {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 11px;
+    }
+    table.treeview th {
+      background-color: #1A2234;
+      color: #FFD60A;
+      font-weight: 700;
+      padding: 8px 10px;
+      position: sticky;
+      top: 0;
+      border-bottom: 1px solid #2A344B;
+      white-space: nowrap;
+    }
+    table.treeview td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #141A28;
+      color: #F1F5F9;
+      white-space: nowrap;
+    }
+    table.treeview tr:hover {
+      background-color: #161D2C;
+      cursor: pointer;
+    }
+    table.treeview tr.selected {
+      background-color: #FFD60A !important;
+      color: #000000 !important;
+      font-weight: 700;
+    }
+    table.treeview tr.selected td {
+      color: #000000 !important;
+    }
+
+    /* Active Highlight & Zoom Panel */
+    .preview-card {
+      background-color: #111624;
+      border: 2px solid #FFD60A;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 95px;
+    }
+    .preview-title {
+      color: #FFD60A;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .preview-details {
+      color: #94A3B8;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    .preview-thumbnails {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+    .preview-thumb {
+      width: 60px;
+      height: 45px;
+      object-fit: cover;
+      border: 1px solid #334155;
+      border-radius: 2px;
+      background: #000;
+    }
+
+    /* Right Column Form Elements */
+    .form-title {
+      color: #FFD60A;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .form-label {
+      color: #94A3B8;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-input, .form-select, .form-textarea {
+      background-color: #080A0F;
+      border: 1px solid #1E2638;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 0;
+      outline: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: #FFD60A;
+    }
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+    .form-row > * {
+      flex: 1;
+    }
+
+    /* Drag & Drop Photo Box - Exact Match */
+    .drop-box {
+      background-color: #161C2B;
+      color: #93C5FD;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      padding: 16px 10px;
+      border: 2px dashed #3B82F6;
+      cursor: pointer;
+      line-height: 1.6;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .drop-box.drag-over {
+      background-color: #064E3B !important;
+      color: #A7F3D0 !important;
+      border-color: #10B981 !important;
+    }
+    .drop-box.ready {
+      background-color: #064E3B !important;
+      color: #A7F3D0 !important;
+      border-color: #10B981 !important;
+    }
+    .photo-status-lbl {
+      font-size: 10px;
+      color: #64748B;
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .btn-browse {
+      background-color: #1E293B;
+      color: #F8FAFC;
+      border: none;
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+    }
+    .btn-browse:hover {
+      background-color: #334155;
+    }
+
+    .btn-save-main {
+      background-color: #FFD60A;
+      color: #000000;
+      border: none;
+      padding: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      margin-top: auto;
+      text-align: center;
+      transition: background-color 0.15s;
+    }
+    .btn-save-main:hover {
+      background-color: #FFE066;
+    }
+    .btn-save-main:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
 </head>
 <body>
-  <div id="app"></div>
-</body>
-</html>
-<!-- Supabase JS Client -->
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
-<!-- config: add .gitignore for dependency and cache artifacts -->
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background-color: #080A0F;
-    color: #ECEFF4;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-</style>
-<style>
-  .glass-card {
-    background: rgba(13, 17, 23, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid #1E2638;
-    border-radius: 8px;
-  }
-</style>
-<style>
-  ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-track { background: #080A0F; }
-  ::-webkit-scrollbar-thumb { background: #1E2638; border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: #FFD60A; }
-</style>
-<style>
-  .btn-gold {
-    background: #FFD60A;
-    color: #000000;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-gold:hover { filter: brightness(1.1); box-shadow: 0 0 12px rgba(255, 214, 10, 0.4); }
-</style>
-<header class="header-bar">
-  <div class="diamond-logo"><span>I</span></div>
-  <div class="header-titles">
-    <h1>INVICTUS</h1>
-    <span>ADMIN CONSOLE</span>
+  <!-- Header -->
+  <div class="header-bar">
+    <div class="diamond-logo"><span>I</span></div>
+    <div class="header-title">INVICTUS - Event and HOF Manager</div>
   </div>
-</header>
-<style>
-  .header-bar { height: 64px; padding: 0 24px; display: flex; align-items: center; border-bottom: 1px solid #1E2638; background: #000; }
-  .diamond-logo { width: 28px; height: 28px; background: #FFD60A; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; margin-right: 14px; box-shadow: 0 0 10px rgba(255, 214, 10, 0.4); }
-  .diamond-logo span { transform: rotate(-45deg); color: #000; font-weight: 900; font-size: 13px; }
-</style>
-<div class="status-badge" style="margin-left:auto; display:flex; align-items:center; gap:8px;">
-  <span class="live-dot" style="width:8px; height:8px; background:#10B981; border-radius:50%;"></span>
-  <span style="font-size:12px; color:#94A3B8;">SUPABASE CONNECTED</span>
-</div>
-<a href="https://github.com/yashkoparde/invictus" target="_blank" style="margin-left:16px; color:#64748B; font-size:12px; text-decoration:none;">Main Site &rarr;</a>
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="switchTab('wins')">HALL OF FAME (WINS)</button>
-  <button class="tab-btn" onclick="switchTab('events')">TIMELINE EVENTS</button>
-</div>
-<style>
-  .tab-bar { display:flex; gap:16px; padding:16px 24px; border-bottom:1px solid #1E2638; }
-  .tab-btn { background:none; border:none; color:#94A3B8; font-weight:600; cursor:pointer; padding:8px 0; border-bottom:2px solid transparent; }
-  .tab-btn.active { color:#FFD60A; border-bottom-color:#FFD60A; }
-</style>
-<script>
-  function switchTab(tab) {
-    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-    event.target.classList.add("active");
-  }
-</script>
-<div class="stats-grid">
-  <div class="stat-card" id="cardWins"><h3>Total Victories</h3><span class="num" id="statWins">--</span></div>
-  <div class="stat-card" id="cardRank1"><h3>National Rank 1s</h3><span class="num" id="statRank1">--</span></div>
-  <div class="stat-card" id="cardEvents"><h3>Timeline Fixtures</h3><span class="num" id="statEvents">--</span></div>
-  <div class="stat-card" id="cardPhotos"><h3>Bucket Photos</h3><span class="num" id="statPhotos">--</span></div>
-</div>
-<style>
-  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; padding:20px 24px; }
-  .stat-card { background:#0D1117; border:1px solid #1E2638; border-radius:8px; padding:16px; }
-  .stat-card h3 { font-size:12px; color:#64748B; text-transform:uppercase; }
-  .stat-card .num { font-size:28px; font-weight:800; color:#FFD60A; display:block; margin-top:8px; }
-</style>
-<script>
-  function updateCounters(wins, events) {
-    document.getElementById("statWins").innerText = wins.length;
-    document.getElementById("statRank1").innerText = wins.filter(w => w.position.includes("1st") || w.position.includes("Winner")).length;
-    document.getElementById("statEvents").innerText = events.length;
-  }
-</script>
-<!-- Stats Tooltip helper notes -->
-<script>
-  const SUPABASE_URL = "https://dzgzezbmntssdcgsndwx.supabase.co";
-  const SUPABASE_KEY = "sb_publishable_6CDdeGs_0f_HjR0RbAv1lw_gi_qMWLW";
-  const supabase = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
-</script>
-<script>
-  async function checkSupabaseConnection() {
-    if (!supabase) return false;
-    const { count, error } = await supabase.from("wins").select("*", { count: "exact", head: true });
-    return !error;
-  }
-</script>
-<!-- Supabase Connection Retry Logic -->
-<!-- Header Live Badge Sync -->
-<div class="table-container" id="winsView">
-  <div class="table-header">
-    <h2>HALL OF FAME FIXTURES</h2>
-    <button class="btn-gold" onclick="openNewWinModal()">+ ADD VICTORY</button>
+
+  <!-- Notebook Tabs -->
+  <div class="notebook-tabs">
+    <button id="tabWinsBtn" class="tab-btn active" onclick="switchTab('wins')">🏆  Hall of Fame (Wins)</button>
+    <button id="tabEventsBtn" class="tab-btn" onclick="switchTab('events')">📅  Timeline Events</button>
   </div>
-  <table class="admin-table">
-    <thead>
-      <tr><th>ID</th><th>HACKATHON / EVENT</th><th>AWARD</th><th>DATE</th><th>LOCATION</th><th>ACTIONS</th></tr>
-    </thead>
-    <tbody id="winsTbody"></tbody>
-  </table>
-</div>
-<style>
-  .admin-table { width:100%; border-collapse:collapse; text-align:left; }
-  .admin-table th { padding:12px; background:#0B0E14; border-bottom:1px solid #1E2638; color:#64748B; font-size:11px; text-transform:uppercase; }
-  .admin-table td { padding:14px 12px; border-bottom:1px solid #161B26; font-size:13px; }
-  .admin-table tr:hover { background:rgba(255,214,10,0.03); }
-</style>
-<script>
-  async function loadWins() {
-    if (!supabase) return;
-    const { data, error } = await supabase.from("wins").select("*").order("sort_date", { ascending: false });
-    if (data) renderWinsTable(data);
-  }
-</script>
-<script>
-  function renderWinsTable(items) {
-    const tbody = document.getElementById("winsTbody");
-    if (!tbody) return;
-    tbody.innerHTML = items.map(w => `<tr><td>#${w.id}</td><td><b>${w.name}</b></td><td><span class="badge">${w.position}</span></td><td>${w.display_date}</td><td>${w.location}</td><td><button onclick="deleteWin(${w.id})">Delete</button></td></tr>`).join("");
-  }
-</script>
-<div class="modal-overlay" id="winModal" style="display:none;">
-  <div class="modal-dialog">
-    <h3>ADD NEW HALL OF FAME CARD</h3>
-    <form id="newWinForm"></form>
+
+  <!-- ========================================================================= -->
+  <!-- TAB 1: HALL OF FAME (WINS) -->
+  <!-- ========================================================================= -->
+  <div id="tabWins" class="tab-body">
+    <!-- Left Column: Table + Highlight Panel -->
+    <div class="left-col">
+      <div class="tbl-top-bar">
+        <div class="tbl-heading">CURRENT HALL OF FAME ENTRIES</div>
+        <div class="btn-group">
+          <button class="gui-btn gui-btn-delete" onclick="deleteSelectedWin()">🗑 Delete Selected</button>
+          <button class="gui-btn gui-btn-reload" onclick="loadWins()">🔄 Reload</button>
+        </div>
+      </div>
+
+      <div class="treeview-wrap">
+        <table class="treeview">
+          <thead>
+            <tr>
+              <th style="width: 50px; text-align: center;">ID</th>
+              <th style="width: 250px;">Tournament / Win Name</th>
+              <th style="width: 130px;">Result / Position</th>
+              <th style="width: 130px;">Location</th>
+              <th style="width: 90px; text-align: center;">Date</th>
+              <th style="width: 100px; text-align: center;">Photos Count</th>
+            </tr>
+          </thead>
+          <tbody id="winsTbody">
+            <tr><td colspan="6" style="text-align:center; padding: 20px; color: #64748B;">Connecting to Supabase...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Active Card Highlight & Zoom Panel -->
+      <div class="preview-card" id="winPreviewCard">
+        <div class="preview-title" id="winPreviewTitle">✨ SELECT A CARD FROM THE TABLE TO INSPECT DETAILS</div>
+        <div class="preview-details" id="winPreviewDetails">Position, date, venue location and associated photo folder preview will appear here in enlarged view.</div>
+        <div class="preview-thumbnails" id="winPreviewThumbnails"></div>
+      </div>
+    </div>
+
+    <!-- Right Column: Form -->
+    <div class="right-col">
+      <div class="form-title">➕ ADD HALL OF FAME CARD</div>
+
+      <div class="form-group">
+        <label class="form-label">Tournament / Hackathon Name *</label>
+        <input type="text" id="winName" class="form-input" placeholder="e.g. Smart India Hackathon" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Award / Position (e.g. Winner, Runner-Up) *</label>
+        <input type="text" id="winPosition" class="form-input" placeholder="Winner / Runner-Up" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Location (e.g. IIT Madras, Belagavi)</label>
+        <input type="text" id="winLocation" class="form-input" placeholder="IIT Madras / Mysuru" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Display Date (e.g. Oct 2026)</label>
+          <input type="text" id="winDispDate" class="form-input" placeholder="Oct 2026" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sort Date (YYYY-MM-DD)</label>
+          <input type="date" id="winSortDate" class="form-input" />
+        </div>
+      </div>
+
+      <!-- Drag & Drop Photo Files Selector Box -->
+      <div class="form-group" style="margin-top: 4px;">
+        <label class="form-label">Upload Photos (Drag & Drop or Browse) *</label>
+        <div id="dropBox" class="drop-box" onclick="document.getElementById('photoInput').click()">
+          📂 DRAG & DROP PHOTO FILES HERE<br>
+          — or click to browse photos —<br>
+          (Uploads to Supabase bucket: hall-of-fame-photos)
+        </div>
+        <input type="file" id="photoInput" multiple accept="image/*" style="display: none;" onchange="handleFileSelect(event)" />
+        <div id="photoStatusLbl" class="photo-status-lbl">No photos chosen yet</div>
+        <button class="btn-browse" onclick="document.getElementById('photoInput').click()">📁 Browse Photos (.jpg, .png, .jpeg)</button>
+      </div>
+
+      <button id="btnSaveWin" class="btn-save-main" onclick="saveNewWin()">SAVE CARD & UPLOAD PHOTOS</button>
+    </div>
   </div>
-</div>
-<style>
-  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:100; }
-  .modal-dialog { background:#0D1117; border:1px solid #1E2638; border-radius:10px; width:540px; padding:24px; }
-</style>
-<script>
-  function openNewWinModal() { document.getElementById("winModal").style.display = "flex"; }
-  function closeWinModal() { document.getElementById("winModal").style.display = "none"; }
-</script>
-<div class="dropbox" id="winDropBox">
-  <p>DRAG & DROP PHOTO FILES HERE<br>- or click to browse -</p>
-  <input type="file" id="winFileInput" multiple accept="image/*" style="display:none;" />
-</div>
-<style>
-  .dropbox { border:2px dashed #1E2638; border-radius:8px; padding:24px; text-align:center; cursor:pointer; color:#64748B; transition:all 0.2s; }
-  .dropbox.dragover { border-color:#FFD60A; background:rgba(255,214,10,0.05); color:#FFD60A; }
-</style>
-<script>
-  const dropBox = document.getElementById("winDropBox");
-  if (dropBox) {
-    dropBox.addEventListener("dragover", e => { e.preventDefault(); dropBox.classList.add("dragover"); });
-    dropBox.addEventListener("dragleave", () => dropBox.classList.remove("dragover"));
-  }
-</script>
-<script>
-  if (dropBox) dropBox.addEventListener("click", () => document.getElementById("winFileInput").click());
-</script>
-<div class="preview-strip" id="winPreviewStrip"></div>
-<script>
-  let stagedFiles = [];
-  function handleFiles(files) {
-    stagedFiles.push(...files);
-    renderThumbnails();
-  }
-</script>
-<script>
-  function removeStagedFile(idx) {
-    stagedFiles.splice(idx, 1);
-    renderThumbnails();
-  }
-</script>
-<style>
-  .preview-strip { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-  .preview-thumb { width:64px; height:64px; border-radius:4px; object-fit:cover; border:1px solid #1E2638; }
-</style>
-<script>
-  const BUCKET_NAME = "hall-of-fame-photos";
-</script>
-<script>
-  function sanitizeStorageKey(file, winId) {
-    const ext = file.name.split(".").pop();
-    return `wins/${winId}/photo_${Date.now()}_${Math.random().toString(36).substring(2,7)}.${ext}`;
-  }
-</script>
-<script>
-  async function uploadPhotosToStorage(files, winId) {
-    const urls = [];
-    for (const f of files) {
-      const key = sanitizeStorageKey(f, winId);
-      const { data, error } = await supabase.storage.from(BUCKET_NAME).upload(key, f);
-      if (!error) {
-        const { data: p } = supabase.storage.from(BUCKET_NAME).getPublicUrl(key);
-        urls.push(p.publicUrl);
+
+
+  <!-- ========================================================================= -->
+  <!-- TAB 2: TIMELINE EVENTS -->
+  <!-- ========================================================================= -->
+  <div id="tabEvents" class="tab-body" style="display: none;">
+    <!-- Left Column: Table + Highlight Panel -->
+    <div class="left-col">
+      <div class="tbl-top-bar">
+        <div class="tbl-heading">CURRENT TIMELINE EVENTS</div>
+        <div class="btn-group">
+          <button class="gui-btn gui-btn-delete" onclick="deleteSelectedEvent()">🗑 Delete Selected</button>
+          <button class="gui-btn gui-btn-reload" onclick="loadEvents()">🔄 Reload</button>
+        </div>
+      </div>
+
+      <div class="treeview-wrap">
+        <table class="treeview">
+          <thead>
+            <tr>
+              <th style="width: 70px; text-align: center;">ID</th>
+              <th style="width: 250px;">Event Name</th>
+              <th style="width: 120px; text-align: center;">Category</th>
+              <th style="width: 90px; text-align: center;">Status</th>
+              <th style="width: 90px; text-align: center;">Date</th>
+              <th style="width: 140px;">Prize Pool / Grants</th>
+            </tr>
+          </thead>
+          <tbody id="eventsTbody">
+            <tr><td colspan="6" style="text-align:center; padding: 20px; color: #64748B;">Connecting to Supabase...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Active Card Highlight & Zoom Panel -->
+      <div class="preview-card" id="evPreviewCard">
+        <div class="preview-title" id="evPreviewTitle">⚡ CLICK ANY TIMELINE EVENT ABOVE TO ENLARGE & INSPECT</div>
+        <div class="preview-details" id="evPreviewDetails">When selected, this card will expand with full tournament summary, prize pool, date, and location.</div>
+      </div>
+    </div>
+
+    <!-- Right Column: Form -->
+    <div class="right-col">
+      <div class="form-title">➕ ADD TIMELINE EVENT FIXTURE</div>
+
+      <div class="form-group">
+        <label class="form-label">Event Name *</label>
+        <input type="text" id="evName" class="form-input" placeholder="e.g. VTU Central Makeathon 2026" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category (Includes Makeathon) *</label>
+          <select id="evCategory" class="form-select">
+            <option value="HACKATHON">HACKATHON</option>
+            <option value="MAKEATHON" selected>MAKEATHON</option>
+            <option value="IDEATHON">IDEATHON</option>
+            <option value="RESEARCH">RESEARCH</option>
+            <option value="PROJECTS">PROJECTS</option>
+            <option value="BUILD">BUILD</option>
+            <option value="EXPO">EXPO</option>
+            <option value="WORKSHOP">WORKSHOP</option>
+            <option value="CODING CONTEST">CODING CONTEST</option>
+            <option value="SEMINAR">SEMINAR</option>
+            <option value="MEETUP">MEETUP</option>
+            <option value="PITCH DAY">PITCH DAY</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status *</label>
+          <select id="evStatus" class="form-select">
+            <option value="UPCOMING" selected>UPCOMING</option>
+            <option value="ONGOING">ONGOING</option>
+            <option value="PAST">PAST</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date (YYYY-MM-DD) *</label>
+          <input type="date" id="evDate" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Location *</label>
+          <input type="text" id="evLoc" class="form-input" placeholder="VTU Campus / Belagavi" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Prize Pool</label>
+          <input type="text" id="evPrize" class="form-input" placeholder="₹2,50,000 INR" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Team Size</label>
+          <input type="text" id="evTeam" class="form-input" placeholder="2 - 4 Members" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">One-Line Summary *</label>
+        <input type="text" id="evSummary" class="form-input" placeholder="36-hour physical prototype build sprint for VTU engineers." />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Full Description</label>
+        <textarea id="evDesc" class="form-textarea" rows="2" placeholder="Full details, mentor support, and criteria..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Tracks (comma separated, e.g. Hardware, AI)</label>
+        <input type="text" id="evTracks" class="form-input" placeholder="Hardware Prototyping, Autonomous Robotics" />
+      </div>
+
+      <button id="btnSaveEv" class="btn-save-main" onclick="saveNewEvent()">SAVE EVENT CARD</button>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = "https://dzgzezbmntssdcgsndwx.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_6CDdeGs_0f_HjR0RbAv1lw_gi_qMWLW";
+    const BUCKET_NAME = "hall-of-fame-photos";
+
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let winsList = [];
+    let eventsList = [];
+    let selectedWinId = null;
+    let selectedEvId = null;
+    let pendingFiles = [];
+
+    // Switch Tabs
+    function switchTab(tab) {
+      document.getElementById('tabWinsBtn').classList.toggle('active', tab === 'wins');
+      document.getElementById('tabEventsBtn').classList.toggle('active', tab === 'events');
+      document.getElementById('tabWins').style.display = tab === 'wins' ? 'flex' : 'none';
+      document.getElementById('tabEvents').style.display = tab === 'events' ? 'flex' : 'none';
+    }
+
+    // =========================================================================
+    // WINS (HALL OF FAME) LOGIC
+    // =========================================================================
+    async function loadWins() {
+      const tbody = document.getElementById('winsTbody');
+      try {
+        const { data, error } = await supabase.from('wins').select('*').order('sort_date', { ascending: false });
+        if (error) throw error;
+        winsList = data || [];
+
+        if (winsList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#64748B;">No entries found in Supabase.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = winsList.map(w => {
+          const isSel = String(w.id) === String(selectedWinId);
+          const numPhotos = (w.images || []).length;
+          return `
+            <tr class="${isSel ? 'selected' : ''}" onclick="selectWin('${w.id}')">
+              <td style="text-align: center;">${w.id}</td>
+              <td>${w.name}</td>
+              <td>${w.position}</td>
+              <td>${w.location}</td>
+              <td style="text-align: center;">${w.display_date || ''}</td>
+              <td style="text-align: center;">${numPhotos} photo(s)</td>
+            </tr>
+          `;
+        }).join('');
+
+        if (selectedWinId) {
+          selectWin(selectedWinId);
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color:#EF4444;">Error: ${err.message}</td></tr>`;
       }
     }
-    return urls;
-  }
-</script>
-<!-- Storage Upload Progress State Feedback -->
-<script>
-  async function getNextWinId() {
-    const { data } = await supabase.from("wins").select("id").order("id", { ascending: false }).limit(1);
-    return (data && data.length > 0) ? (data[0].id + 1) : 1;
-  }
-</script>
-<script>
-  async function createWinRecord(winData) {
-    return await supabase.from("wins").insert([winData]);
-  }
-</script>
-<script>
-  async function onWinCreated() { closeWinModal(); await loadWins(); }
-</script>
-<div class="modal-overlay" id="deleteModal" style="display:none;">
-  <div class="modal-dialog">
-    <h3>CONFIRM DELETION</h3>
-    <p>Are you sure you want to permanently delete this fixture card?</p>
-    <button id="confirmDeleteBtn" class="btn-gold">DELETE</button>
-  </div>
-</div>
-<script>
-  let pendingDeleteId = null;
-  function promptDeleteWin(id) {
-    pendingDeleteId = id;
-    document.getElementById("deleteModal").style.display = "flex";
-  }
-</script>
-<script>
-  async function executeDelete() {
-    if (!pendingDeleteId) return;
-    await supabase.from("wins").delete().eq("id", pendingDeleteId);
-    document.getElementById("deleteModal").style.display = "none";
-    await loadWins();
-  }
-</script>
-<!-- Storage Folder Cleanup on Delete -->
-<div class="table-container" id="eventsView" style="display:none;">
-  <div class="table-header">
-    <h2>TIMELINE EVENTS</h2>
-    <button class="btn-gold" onclick="openNewEventModal()">+ ADD EVENT</button>
-  </div>
-  <table class="admin-table">
-    <thead>
-      <tr><th>ID</th><th>EVENT TITLE</th><th>CATEGORY</th><th>STATUS</th><th>DATE</th><th>ACTIONS</th></tr>
-    </thead>
-    <tbody id="eventsTbody"></tbody>
-  </table>
-</div>
-<script>
-  async function loadEvents() {
-    if (!supabase) return;
-    const { data } = await supabase.from("events").select("*").order("date", { ascending: false });
-    if (data) renderEventsTable(data);
-  }
-</script>
-<script>
-  function renderEventsTable(events) {
-    const tbody = document.getElementById("eventsTbody");
-    if (!tbody) return;
-    tbody.innerHTML = events.map(e => `<tr><td>#${e.id}</td><td><b>${e.name}</b></td><td>${e.category}</td><td><span class="status-pill">${e.status}</span></td><td>${e.date}</td><td><button onclick="deleteEvent(${e.id})">Delete</button></td></tr>`).join("");
-  }
-</script>
-<style>
-  .status-pill { padding:3px 8px; border-radius:12px; font-size:11px; font-weight:700; background:#1E2638; color:#94A3B8; }
-</style>
-<input type="text" id="eventSearchInput" placeholder="Filter events..." class="search-box" />
-<script>
-  document.getElementById("eventSearchInput")?.addEventListener("input", e => {
-    const q = e.target.value.toLowerCase();
-  });
-</script>
-<!-- Category Dropdown Filter Selector -->
-<style>
-  .search-box { background:#0D1117; border:1px solid #1E2638; color:#ECEFF4; padding:8px 12px; border-radius:6px; }
-</style>
-<div id="agendaBuilder" class="agenda-container">
-  <h4>SCHEDULE AGENDA</h4>
-  <div id="agendaRows"></div>
-  <button type="button" onclick="addAgendaRow()">+ Add Activity</button>
-</div>
-<script>
-  function addAgendaRow() {
-    const r = document.createElement("div");
-    r.className = "agenda-row";
-    r.innerHTML = `<input placeholder="Time (e.g. 10:00 AM)" /><input placeholder="Activity description" /><button onclick="this.parentElement.remove()">X</button>`;
-    document.getElementById("agendaRows")?.appendChild(r);
-  }
-</script>
-<script>
-  function serializeAgenda() {
-    return Array.from(document.querySelectorAll(".agenda-row")).map(r => ({
-      time: r.children[0].value,
-      activity: r.children[1].value
-    }));
-  }
-</script>
-<div class="tag-input-group">
-  <label>Mentors & Judges (comma separated):</label>
-  <input id="mentorsInput" placeholder="Dr. Sharma, Jane Doe" />
-</div>
-<script>
-  function parseMentors() {
-    const val = document.getElementById("mentorsInput")?.value || "";
-    return val.split(",").map(s => s.trim()).filter(Boolean);
-  }
-</script>
-<!-- Tag Preview Chip Styles -->
-<div id="toastContainer" style="position:fixed; top:20px; right:20px; z-index:999;"></div>
-<script>
-  function showToast(msg, type="info") {
-    const t = document.createElement("div");
-    t.innerText = msg;
-    t.style.cssText = "background:#0D1117; border:1px solid #FFD60A; color:#ECEFF4; padding:12px 18px; margin-bottom:8px; border-radius:6px; box-shadow:0 4px 12px rgba(0,0,0,0.5);";
-    document.getElementById("toastContainer")?.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
-  }
-</script>
-<!-- Toast alerts integration with form actions -->
-<!-- Offline Mock Data Fallback Hook -->
-<!-- JSON Export Database Snapshot Tool -->
+
+    function selectWin(id) {
+      selectedWinId = id;
+      document.querySelectorAll('#winsTbody tr').forEach((tr, i) => {
+        tr.classList.toggle('selected', String(winsList[i]?.id) === String(id));
+      });
+
+      const win = winsList.find(w => String(w.id) === String(id));
+      if (!win) return;
+
+      document.getElementById('winPreviewTitle').innerText = `🏆 #${win.id} • ${win.name.toUpperCase()}`;
+      document.getElementById('winPreviewDetails').innerText = `Award: ${win.position}   |   Date: ${win.display_date}   |   Location: ${win.location}   |   Photos: ${(win.images || []).length} in Supabase Storage`;
+
+      const thumbs = document.getElementById('winPreviewThumbnails');
+      if (win.images && win.images.length > 0) {
+        thumbs.innerHTML = win.images.map(img => `
+          <img src="${img}" class="preview-thumb" onerror="this.style.display='none'" />
+        `).join('');
+      } else {
+        thumbs.innerHTML = '';
+      }
+    }
+
+    async function deleteSelectedWin() {
+      if (!selectedWinId) {
+        alert("Please select a Hall of Fame entry from the table to delete.");
+        return;
+      }
+      const win = winsList.find(w => String(w.id) === String(selectedWinId));
+      if (!confirm(`Are you sure you want to remove card #${win.id} ('${win.name}')?`)) {
+        return;
+      }
+
+      const { error } = await supabase.from('wins').delete().eq('id', selectedWinId);
+      if (error) {
+        alert("Error deleting win: " + error.message);
+        return;
+      }
+
+      selectedWinId = null;
+      document.getElementById('winPreviewTitle').innerText = "✨ SELECT A CARD FROM THE TABLE TO INSPECT DETAILS";
+      document.getElementById('winPreviewDetails').innerText = "Position, date, venue location and associated photo folder preview will appear here in enlarged view.";
+      document.getElementById('winPreviewThumbnails').innerHTML = '';
+      loadWins();
+    }
+
+    // Drag & Drop Handling for Photos
+    const dropBox = document.getElementById('dropBox');
+    dropBox.addEventListener('dragover', (e) => { e.preventDefault(); dropBox.classList.add('drag-over'); });
+    dropBox.addEventListener('dragleave', (e) => { e.preventDefault(); dropBox.classList.remove('drag-over'); });
+    dropBox.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropBox.classList.remove('drag-over');
+      if (e.dataTransfer && e.dataTransfer.files) {
+        pendingFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+        updatePhotoStatus();
+      }
+    });
+
+    function handleFileSelect(e) {
+      if (e.target.files) {
+        pendingFiles = Array.from(e.target.files).filter(f => f.type.startsWith('image/'));
+        updatePhotoStatus();
+      }
+    }
+
+    function updatePhotoStatus() {
+      const lbl = document.getElementById('photoStatusLbl');
+      if (pendingFiles.length > 0) {
+        lbl.innerText = `Selected ${pendingFiles.length} file(s): ${pendingFiles.map(f => f.name).slice(0, 2).join(', ')}${pendingFiles.length > 2 ? ` + ${pendingFiles.length - 2} more` : ''}`;
+        lbl.style.color = '#34D399';
+        dropBox.classList.add('ready');
+        dropBox.innerHTML = `✓ Ready: ${pendingFiles.length} photo(s) selected<br>Folder 'wins/...' will be created in Supabase Storage automatically`;
+      } else {
+        lbl.innerText = 'No photos chosen yet';
+        lbl.style.color = '#64748B';
+        dropBox.classList.remove('ready');
+        dropBox.innerHTML = `📂 DRAG & DROP PHOTO FILES HERE<br>— or click to browse photos —<br>(Uploads to Supabase bucket: hall-of-fame-photos)`;
+      }
+    }
+
+    async function saveNewWin() {
+      const name = document.getElementById('winName').value.trim();
+      const pos = document.getElementById('winPosition').value.trim();
+      const loc = document.getElementById('winLocation').value.trim();
+      const dispDate = document.getElementById('winDispDate').value.trim();
+      const sortDate = document.getElementById('winSortDate').value || new Date().toISOString().split('T')[0];
+
+      if (!name || !pos) {
+        alert("Please enter at least the Tournament Name and Award/Position.");
+        return;
+      }
+
+      const saveBtn = document.getElementById('btnSaveWin');
+      saveBtn.disabled = true;
+      saveBtn.innerText = "UPLOADING TO SUPABASE...";
+
+      try {
+        // Calculate next numeric ID
+        const numericIds = winsList.map(w => parseInt(w.id, 10)).filter(n => !isNaN(n));
+        const nextId = String(numericIds.length > 0 ? Math.max(...numericIds) + 1 : 1);
+
+        // Upload each dropped/picked photo directly to Supabase storage bucket
+        const uploadedUrls = [];
+        for (let i = 0; i < pendingFiles.length; i++) {
+          const file = pendingFiles[i];
+          const ext = file.name.split('.').pop() || 'jpg';
+          const filePath = `wins/${nextId}/photo_${i + 1}.${ext}`;
+
+          const { data: uploadRes, error: uploadErr } = await supabase.storage
+            .from(BUCKET_NAME)
+            .upload(filePath, file, {
+              cacheControl: '3600',
+              upsert: true
+            });
+
+          if (uploadErr) {
+            console.warn("Storage upload error on file:", file.name, uploadErr);
+          } else {
+            const { data: urlData } = supabase.storage
+              .from(BUCKET_NAME)
+              .getPublicUrl(filePath);
+            if (urlData && urlData.publicUrl) {
+              uploadedUrls.push(urlData.publicUrl);
+            }
+          }
+        }
+
+        // Insert new win into database
+        const newEntry = {
+          id: nextId,
+          name: name,
+          location: loc || "India",
+          position: pos,
+          display_date: dispDate || "2026",
+          sort_date: sortDate,
+          images: uploadedUrls
+        };
+
+        const { error: insertErr } = await supabase.from('wins').insert([newEntry]);
+        if (insertErr) throw insertErr;
+
+        // Reset inputs
+        document.getElementById('winName').value = '';
+        document.getElementById('winPosition').value = '';
+        document.getElementById('winLocation').value = '';
+        document.getElementById('winDispDate').value = '';
+        document.getElementById('winSortDate').value = '';
+        pendingFiles = [];
+        updatePhotoStatus();
+
+        await loadWins();
+        selectWin(nextId);
+        alert(`Hall of Fame card #${nextId} ('${name}') added!\n${uploadedUrls.length} photo(s) uploaded to Supabase bucket '${BUCKET_NAME}'!`);
+      } catch (err) {
+        alert("Failed to save card: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "SAVE CARD & UPLOAD PHOTOS";
+      }
+    }
+
+
+    // =========================================================================
+    // TIMELINE EVENTS LOGIC
+    // =========================================================================
+    async function loadEvents() {
+      const tbody = document.getElementById('eventsTbody');
+      try {
+        const { data, error } = await supabase.from('events').select('*').order('date', { ascending: false });
+        if (error) throw error;
+        eventsList = data || [];
+
+        if (eventsList.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 20px; color:#64748B;">No events found in Supabase.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = eventsList.map(ev => {
+          const isSel = String(ev.id) === String(selectedEvId);
+          return `
+            <tr class="${isSel ? 'selected' : ''}" onclick="selectEvent('${ev.id}')">
+              <td style="text-align: center;">${ev.id}</td>
+              <td>${ev.name}</td>
+              <td style="text-align: center;">${ev.category}</td>
+              <td style="text-align: center;">${ev.status}</td>
+              <td style="text-align: center;">${ev.date}</td>
+              <td>${ev.prize_pool || '—'}</td>
+            </tr>
+          `;
+        }).join('');
+
+        if (selectedEvId) {
+          selectEvent(selectedEvId);
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color:#EF4444;">Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    function selectEvent(id) {
+      selectedEvId = id;
+      document.querySelectorAll('#eventsTbody tr').forEach((tr, i) => {
+        tr.classList.toggle('selected', String(eventsList[i]?.id) === String(id));
+      });
+
+      const ev = eventsList.find(e => String(e.id) === String(id));
+      if (!ev) return;
+
+      document.getElementById('evPreviewTitle').innerText = `📅 ${ev.id.toUpperCase()} • ${ev.name.toUpperCase()}`;
+      document.getElementById('evPreviewDetails').innerHTML = `
+        <strong>CATEGORY:</strong> ${ev.category} &nbsp;|&nbsp; 
+        <strong>STATUS:</strong> ${ev.status} &nbsp;|&nbsp; 
+        <strong>DATE:</strong> ${ev.date} &nbsp;|&nbsp; 
+        <strong>VENUE:</strong> ${ev.location} &nbsp;|&nbsp; 
+        <strong>PRIZE:</strong> ${ev.prize_pool || 'N/A'}<br><br>
+        <strong>SUMMARY:</strong> ${ev.summary}
+      `;
+    }
+
+    async function deleteSelectedEvent() {
+      if (!selectedEvId) {
+        alert("Please select an event fixture to delete.");
+        return;
+      }
+      const ev = eventsList.find(e => String(e.id) === String(selectedEvId));
+      if (!confirm(`Are you sure you want to delete event fixture '${ev.name}' (${ev.id})?`)) {
+        return;
+      }
+
+      const { error } = await supabase.from('events').delete().eq('id', selectedEvId);
+      if (error) {
+        alert("Error deleting event: " + error.message);
+        return;
+      }
+
+      selectedEvId = null;
+      document.getElementById('evPreviewTitle').innerText = "⚡ CLICK ANY TIMELINE EVENT ABOVE TO ENLARGE & INSPECT";
+      document.getElementById('evPreviewDetails').innerText = "When selected, this card will expand with full tournament summary, prize pool, date, and location.";
+      loadEvents();
+    }
+
+    async function saveNewEvent() {
+      const name = document.getElementById('evName').value.trim();
+      const cat = document.getElementById('evCategory').value;
+      const stat = document.getElementById('evStatus').value;
+      const dateVal = document.getElementById('evDate').value;
+      const loc = document.getElementById('evLoc').value.trim();
+      const prize = document.getElementById('evPrize').value.trim();
+      const team = document.getElementById('evTeam').value.trim();
+      const summary = document.getElementById('evSummary').value.trim();
+      const desc = document.getElementById('evDesc').value.trim();
+      const tracksRaw = document.getElementById('evTracks').value.trim();
+
+      if (!name || !summary || !loc || !dateVal) {
+        alert("Please provide Event Name, Date, Location, and One-line Summary.");
+        return;
+      }
+
+      const saveBtn = document.getElementById('btnSaveEv');
+      saveBtn.disabled = true;
+      saveBtn.innerText = "SAVING TO SUPABASE...";
+
+      try {
+        const existingNums = eventsList
+          .map(e => {
+            const m = String(e.id).match(/event-(\d+)/);
+            return m ? parseInt(m[1], 10) : null;
+          })
+          .filter(n => n !== null);
+        const nextId = `event-${existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1}`;
+
+        const tracks = tracksRaw ? tracksRaw.split(',').map(t => t.trim()).filter(Boolean) : ["Open Innovation"];
+
+        const newEvent = {
+          id: nextId,
+          name: name,
+          date: dateVal,
+          category: cat,
+          status: stat,
+          location: loc,
+          prize_pool: prize || "Certificate & Grants",
+          team_size: team || "1 - 4 Members",
+          summary: summary,
+          description: desc || summary,
+          tracks: tracks,
+          schedule: [
+            { time: "Day 1 - 09:00 AM", activity: "Opening Keynote & Kickoff" },
+            { time: "Day 2 - 04:00 PM", activity: "Final Submissions & Demos" }
+          ],
+          mentors_or_judges: ["Invictus Mentors & Industry Leaders"]
+        };
+
+        const { error } = await supabase.from('events').insert([newEvent]);
+        if (error) throw error;
+
+        document.getElementById('evName').value = '';
+        document.getElementById('evLoc').value = '';
+        document.getElementById('evPrize').value = '';
+        document.getElementById('evTeam').value = '';
+        document.getElementById('evSummary').value = '';
+        document.getElementById('evDesc').value = '';
+        document.getElementById('evTracks').value = '';
+
+        await loadEvents();
+        selectEvent(nextId);
+        alert(`Event fixture '${name}' saved as ID '${nextId}'!`);
+      } catch (err) {
+        alert("Failed to save event: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerText = "SAVE EVENT CARD";
+      }
+    }
+
+    // Initial Load
+    loadWins();
+    loadEvents();
+  </script>
+</body>
+</html>
